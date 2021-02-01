@@ -1,6 +1,7 @@
 .bd-scrollerWrap {
     display: flex;
     width: 100%;
+    min-height: 1px;
 
     .bd-scroller {
         @include scrollbar;

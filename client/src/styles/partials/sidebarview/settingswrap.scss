@@ -16,9 +16,11 @@
         display: flex;
         flex-direction: column;
         flex-grow: 1;
+        min-height: 1px;
 
         > .bd-scrollerWrap {
             flex-grow: 1;
+            min-height: 1px;
 
             > .bd-scroller {
                 overflow-y: scroll;
