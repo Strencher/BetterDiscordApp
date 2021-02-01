@@ -10,6 +10,7 @@
 
 import { Utils, Filters } from 'common';
 import Events from '../events';
+import electron, {webFrame} from 'electron';
 
 const KnownModules = {
     React: Filters.byProperties(['createElement', 'cloneElement']),
@@ -31,7 +32,7 @@ const KnownModules = {
     GuildPermissions: Filters.byProperties(['getGuildPermissions']),
 
     /* Channel Store & Actions */
-    ChannelStore: Filters.byProperties(['getChannels', 'getDMFromUserId']),
+    ChannelStore: Filters.byProperties(['getChannel', 'getDMFromUserId']),
     SelectedChannelStore: Filters.byProperties(['getLastSelectedChannelId']),
     ChannelActions: Filters.byProperties(['selectChannel']),
     PrivateChannelActions: Filters.byProperties(['openPrivateChannel']),
@@ -297,18 +298,20 @@ class Module {
     static getWebpackRequire() {
         const id = 'bd-webpackmodules';
 
-        if (typeof window.webpackJsonp === 'function') {
-            const __webpack_require__ = window['webpackJsonp']([], {
+        const win = webFrame.top.context;
+
+        if (typeof win.webpackJsonp === 'function') {
+            const __webpack_require__ = win['webpackJsonp']([], {
                 [id]: (module, exports, __webpack_require__) => exports.default = __webpack_require__
             }, [id]).default;
             delete __webpack_require__.m[id];
             delete __webpack_require__.c[id];
             return __webpack_require__;
-        } else if (window.webpackJsonp && window.webpackJsonp.push) {
-            const __webpack_require__ = window['webpackJsonp'].push([[], {
+        } else if (win.webpackJsonp && win.webpackJsonp.push) {
+            const __webpack_require__ = win['webpackJsonp'].push([[], {
                 [id]: (module, exports, req) => exports.default = req
             }, [[id]]]).default;
-            window['webpackJsonp'].pop();
+            win['webpackJsonp'].pop();
             delete __webpack_require__.m[id];
             delete __webpack_require__.c[id];
             return __webpack_require__;

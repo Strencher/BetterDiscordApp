@@ -56,17 +56,21 @@ export default class BDIpc {
      * @return {Promise}
      */
     static send(window, channel, message, error) {
-        channel = channel.startsWith('bd-') ? channel : `bd-${channel}`;
+        try {
+            channel = channel.startsWith('bd-') ? channel : `bd-${channel}`;
 
-        const eid = `bd-${  Date.now().toString()}`;
-        window.send(channel, { eid, message, error });
+            const eid = `bd-${  Date.now().toString()}`;
+            window.send(channel, { eid, message, error });
 
-        return new Promise((resolve, reject) => {
-            ipcMain.once(eid, (event, arg) => {
-                if (arg.error) reject(arg.message);
-                else resolve(arg.message);
+            return new Promise((resolve, reject) => {
+                ipcMain.once(eid, (event, arg) => {
+                    if (arg.error) reject(arg.message);
+                    else resolve(arg.message);
+                });
             });
-        });
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     static ping(window) {

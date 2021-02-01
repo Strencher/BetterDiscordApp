@@ -37,7 +37,7 @@ const TEST_ARGS = () => {
             'data': path.resolve(_baseDataPath, 'data'),
             'editor': path.resolve(_basePath, 'editor', 'dist'),
             // tmp: path.join(_basePath, 'tmp')
-            tmp: path.join(os.tmpdir(), 'betterdiscord', `${process.getuid()}`)
+            tmp: path.join(os.tmpdir(), 'betterdiscord', `${process.ppid}`)
         }
     }
 }
@@ -46,11 +46,11 @@ const TEST_EDITOR = TESTS && true;
 import process from 'process';
 import os from 'os';
 import path from 'path';
-import sass from 'node-sass';
+import sass from 'sass';
 import { BrowserWindow as OriginalBrowserWindow, dialog, session, shell } from 'electron';
 import deepmerge from 'deepmerge';
 import ContentSecurityPolicy from 'csp-parse';
-import keytar from 'keytar';
+// import keytar from 'keytar';
 
 import { FileUtils, BDIpc, Config, WindowUtils, Updater, Editor, Database } from './modules';
 
@@ -97,10 +97,10 @@ class Comms {
 
         BDIpc.on('bd-dba', (event, options) => this.bd.database.exec(options), true);
 
-        BDIpc.on('bd-keytar-get', (event, { service, account }) => keytar.getPassword(service, account), true);
-        BDIpc.on('bd-keytar-set', (event, { service, account, password }) => keytar.setPassword(service, account, password), true);
-        BDIpc.on('bd-keytar-delete', (event, { service, account }) => keytar.deletePassword(service, account), true);
-        BDIpc.on('bd-keytar-find-credentials', (event, { service }) => keytar.findCredentials(service), true);
+        // BDIpc.on('bd-keytar-get', (event, { service, account }) => keytar.getPassword(service, account), true);
+        // BDIpc.on('bd-keytar-set', (event, { service, account, password }) => keytar.setPassword(service, account, password), true);
+        // BDIpc.on('bd-keytar-delete', (event, { service, account }) => keytar.deletePassword(service, account), true);
+        // BDIpc.on('bd-keytar-find-credentials', (event, { service }) => keytar.findCredentials(service), true);
 
         BDIpc.on('bd-readDataFile', async (event, fileName) => {
             const rf = await FileUtils.readFile(path.resolve(configProxy().getPath('data'), fileName));
@@ -163,10 +163,15 @@ class BrowserWindow extends OriginalBrowserWindow {
         const userOptions = BrowserWindow.userWindowPreferences;
 
         const options = deepmerge(originalOptions, userOptions);
-        options.webPreferences = Object.assign({}, options.webPreferences);
+        options.webPreferences = Object.assign({}, options.webPreferences, {
+            nodeIntegration: true,
+            enableRemoteModule: true,
+        });
 
         // Make sure Node integration is enabled
         options.webPreferences.preload = sparkplug;
+
+        // options.webPreferences.nodeIntegration = true;
 
         super(options);
 
@@ -240,8 +245,12 @@ export class BetterDiscord {
 
     async init() {
         console.log('[BetterDiscord] init');
-        await this.waitForWindowUtils();
-        await this.ensureDirectories();
+        try {
+            await this.waitForWindowUtils();
+            await this.ensureDirectories();
+        } catch (error) {
+            console.log("Error", error)
+        }
 
         this.windowUtils.on('did-finish-load', () => this.injectScripts(true));
 
@@ -268,7 +277,7 @@ export class BetterDiscord {
 
     async waitForWindowUtils() {
         if (this.windowUtils) return this.windowUtils;
-        const window = await this.waitForWindow();
+        const window = await this.waitForWindow();;
         return this.windowUtils = new WindowUtils({ window });
     }
 
@@ -279,8 +288,7 @@ export class BetterDiscord {
         return new Promise(resolve => {
             const defer = setInterval(() => {
                 const windows = OriginalBrowserWindow.getAllWindows();
-
-                if (windows.length === 1 && windows[0].webContents.getURL().includes('discordapp.com')) {
+                if (windows.length === 1 && windows[0].webContents.getURL().includes('discord.com')) {
                     resolve(windows[0]);
                     clearInterval(defer);
                 }
@@ -293,6 +301,7 @@ export class BetterDiscord {
      */
     parseClientPackage() {
         const clientPath = this.config.getPath('client');
+        console.log(clientPath)
         const clientPkg = TESTS ? require(`${path.resolve(clientPath, '..')}/package.json`) : require(`${clientPath}/package.json`);
         const { version } = clientPkg;
         const main = TESTS ? 'betterdiscord.client.js' : clientPkg.main;
@@ -303,6 +312,7 @@ export class BetterDiscord {
 
     parseCorePackage() {
         const corePath = this.config.getPath('core');
+        console.log(corePath)
         const corePkg = TESTS ? require(`${path.resolve(corePath, '..')}/package.json`) : require(`${corePath}/package.json`);
         const { version } = corePkg;
         this.config.setCoreVersion(version);
@@ -310,7 +320,8 @@ export class BetterDiscord {
 
     parseEditorPackage() {
         const editorPath = this.config.getPath('editor');
-        const editorPkg = TESTS ? require(`${path.resolve(editorPath, '..')}/package.json`) : require(`${editorPath}/package.json`);
+        console.log(editorPath)
+        const editorPkg = TESTS ? require(`${path.resolve(editorPath, '../')}/package.json`) : require(`${editorPath}/package.json`);
         const { version } = editorPkg;
         this.config.setEditorVersion(version);
     }
@@ -374,7 +385,12 @@ export class BetterDiscord {
         const electron_path = require.resolve('electron');
         Object.assign(BrowserWindow, electron.BrowserWindow); // Assigns the new chrome-specific ones
         const newElectron = Object.assign({}, electron, { BrowserWindow });
-        require.cache[electron_path].exports = newElectron;
+        try {
+            delete require.cache[electron_path].exports;
+            require.cache[electron_path].exports = newElectron;
+        } catch (error) {
+            console.log("Failed to patch BrowserWindow. BetterDiscord will not show up!", error);
+        }
     }
 
     /**

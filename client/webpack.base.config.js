@@ -15,11 +15,23 @@ const vueLoader = {
     use: 'vue-loader'
 };
 
+const sass = require('sass');
+console.log(sass);
+
 const scssLoader = {
-    test: /\.scss$/,
-    exclude: /node_modules/,
-    use: ['css-loader', 'sass-loader']
-};
+    test: /\.s[ac]ss$/i,
+    use: [
+        'style-loader',
+        'css-loader',
+        {
+            loader: 'sass-loader',
+            options: {
+                implementation: sass,
+                includePaths: ['node_modules/dart-sass']
+            },
+        },
+    ],
+}
 
 module.exports = {
     entry: './src/index.js',

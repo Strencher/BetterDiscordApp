@@ -14,7 +14,7 @@ import { BrowserWindow } from 'electron';
 import Module from './modulebase';
 import { WindowUtils, FileUtils } from './utils';
 import BDIpc from './bdipc';
-import sass from 'node-sass';
+import sass from 'sass';
 import chokidar from 'chokidar';
 
 export default class Editor extends Module {

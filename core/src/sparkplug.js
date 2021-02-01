@@ -15,28 +15,36 @@ import electron, { ipcRenderer } from 'electron';
 (() => {
     if (module.exports.bd) return;
 
-    console.log('[BetterDiscord|Sparkplug]');
+    console.log('[BetterDiscord|Sparkplug] Loading...');
+    const old = process.on;
 
-    electron.webFrame.registerURLSchemeAsPrivileged('chrome-extension');
-
+    // electron.webFrame.registerURLSchemeAsPrivileged('chrome-extension');
+    // electron.contextBridge.exposeInMainWorld = (key, val) => window[key] = val;
     const currentWindow = electron.remote.getCurrentWindow();
-
     if (currentWindow.__bd_preload) {
         for (const preloadScript of currentWindow.__bd_preload) {
             try {
                 require(preloadScript);
+                console.log('Loaded preload script.');
             } catch (err) {
                 console.error('[BetterDiscord|Sparkplug] Error thrown in preload script', preloadScript, err);
             }
         }
     }
 
+    console.log(electron)
+
+    // Object.defineProperty(window, "webpackJsonp", {
+    //     get() {return electron.webFrame.context.window.webpackJsonp}
+    // })
+
+    process.on = old;
+
     ipcRenderer.on('--bd-inject-script', (event, {script, variable}) => {
         console.log('[BetterDiscord|Sparkplug] Injecting script', script, variable);
         if (variable) window[variable] = require(script);
         else require(script);
     });
-
     const ls = window.localStorage;
     if (!ls) console.warn('[BetterDiscord|Sparkplug] Failed to hook localStorage :(');
     const wsOrig = window.WebSocket;

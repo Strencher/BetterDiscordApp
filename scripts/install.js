@@ -3,7 +3,7 @@ const fs = require('fs-extra');
 const path = require('path');
 
 // Copy the node-sass bindings to node_modules/node-sass/vendor
-const node_sass_path = path.resolve(require.resolve('node-sass'), '..', '..');
+const node_sass_path = path.resolve(require.resolve('sass'), '..', '..');
 const prebuilt_node_sass_bindings_path = path.resolve(__dirname, '..', 'other', 'node_sass_bindings');
 
 for (const node_sass_binding_name of fs.readdirSync(prebuilt_node_sass_bindings_path)) {

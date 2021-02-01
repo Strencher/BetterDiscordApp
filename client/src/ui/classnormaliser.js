@@ -16,6 +16,7 @@ const randClass = new RegExp(`^(?!${normalizedPrefix}-)((?:[A-Za-z]|[0-9]|-)+)-(
 export default class ClassNormaliser extends Module {
 
     init() {
+        return;
         this.patchClassModules(Reflection.module.getModule(this.moduleFilter.bind(this), false));
         this.normalizeElement(document.querySelector('#app-mount'));
     }
