@@ -15,3 +15,4 @@ user.config.json
 /npm-debug.log
 /tests/ext/extensions
 /tests/userdata
+/tests/ext/plugins/Bd Compat
