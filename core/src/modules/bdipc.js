@@ -56,21 +56,22 @@ export default class BDIpc {
      * @return {Promise}
      */
     static send(window, channel, message, error) {
+
+        channel = channel.startsWith('bd-') ? channel : `bd-${channel}`;
+
+        const eid = `bd-${  Date.now().toString()}`;
         try {
-            channel = channel.startsWith('bd-') ? channel : `bd-${channel}`;
-
-            const eid = `bd-${  Date.now().toString()}`;
             window.send(channel, { eid, message, error });
-
-            return new Promise((resolve, reject) => {
-                ipcMain.once(eid, (event, arg) => {
-                    if (arg.error) reject(arg.message);
-                    else resolve(arg.message);
-                });
-            });
         } catch (error) {
-            console.log(error);
+            console.warn(`[BetterDiscord] Event [${channel}] was not send to window.`, error);
         }
+
+        return new Promise((resolve, reject) => {
+            ipcMain.once(eid, (event, arg) => {
+                if (arg.error) reject(arg.message);
+                else resolve(arg.message);
+            });
+        });
     }
 
     static ping(window) {
