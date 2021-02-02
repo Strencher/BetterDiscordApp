@@ -38,8 +38,13 @@ export default class CSSEditor extends Module {
             }
 
             options = Object.assign({}, this.options, options);
+            options.webPreferences = {
+                nodeIntegration: true,
+                enableRemoteModule: true,
+            }
 
             this.editor = new BrowserWindow(options);
+
             this.editor.loadURL('about:blank');
             this.editor.setSheetOffset(33);
             this.editorUtils = new WindowUtils({ window: this.editor });

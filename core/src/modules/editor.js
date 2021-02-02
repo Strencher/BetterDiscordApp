@@ -16,6 +16,7 @@ import { WindowUtils, FileUtils } from './utils';
 import BDIpc from './bdipc';
 import sass from 'sass';
 import chokidar from 'chokidar';
+import { readFileSync } from 'fs';
 
 export default class Editor extends Module {
 
@@ -214,8 +215,6 @@ export default class Editor extends Module {
             this.editorPkg = await FileUtils.readJsonFromFile(path.join(this.editorPath, 'package.json'));
         }
 
-        console.log(this.editorPkg);
-
         return new Promise((resolve, reject) => {
             if (this.editor) {
                 if (this.editor.isFocused()) return;
@@ -225,7 +224,12 @@ export default class Editor extends Module {
                 return resolve(true);
             }
 
-            options = Object.assign({}, this.options, options);
+            options = Object.assign({}, this.options, options, {
+                webPreferences: {
+                    nodeIntegration: true,
+                    enableRemoteModule: true,
+                }
+            });
 
             this.editor = new BrowserWindow(options);
             this.editor.loadURL('about:blank');
@@ -242,7 +246,8 @@ export default class Editor extends Module {
             });
 
             this.editor.webContents.on('did-finish-load', () => {
-                this.editorUtils.injectScript(path.join(this.editorPath, this.editorPkg.main));
+                this.editor.webContents.executeJavaScript(readFileSync(path.join(this.editorPath, this.editorPkg.main), 'utf8'));
+                // this.editorUtils.injectScript(path.join(this.editorPath, this.editorPkg.main));
                 resolve(true);
             });
         })
