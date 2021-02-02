@@ -73,9 +73,9 @@ class Comms {
 
         BDIpc.on('bd-sendToDiscord', (event, m) => this.sendToDiscord(m.channel, m.message), true);
 
-        // BDIpc.on('bd-openCssEditor', (event, options) => this.bd.csseditor.openEditor(options), true);
-        // BDIpc.on('bd-sendToCssEditor', (event, m) => this.sendToCssEditor(m.channel, m.message), true);
-        // BDIpc.on('bd-openCssEditor', (event, options) => this.bd.editor.openEditor(options), true);
+        BDIpc.on('bd-openCssEditor', (event, options) => this.bd.csseditor.openEditor(options), true);
+        BDIpc.on('bd-sendToCssEditor', (event, m) => this.sendToCssEditor(m.channel, m.message), true);
+        BDIpc.on('bd-openCssEditor', (event, options) => this.bd.editor.openEditor(options), true);
 
         BDIpc.on('bd-native-open', (event, options) => {
             dialog.showOpenDialog(OriginalBrowserWindow.fromWebContents(event.ipcEvent.sender), options, filenames => {
@@ -154,7 +154,7 @@ class Comms {
     }
 
     async sendToCssEditor(channel, message) {
-        return this.bd.csseditor.send(channel, message);
+        return this.bd._editor.send(channel, message);
     }
 }
 
@@ -249,7 +249,7 @@ export class BetterDiscord {
             await this.waitForWindowUtils();
             await this.ensureDirectories();
         } catch (error) {
-            console.log("Error", error)
+            console.log('Error', error)
         }
 
         this.windowUtils.on('did-finish-load', () => this.injectScripts(true));
@@ -277,7 +277,7 @@ export class BetterDiscord {
 
     async waitForWindowUtils() {
         if (this.windowUtils) return this.windowUtils;
-        const window = await this.waitForWindow();;
+        const window = await this.waitForWindow();
         return this.windowUtils = new WindowUtils({ window });
     }
 
@@ -301,7 +301,6 @@ export class BetterDiscord {
      */
     parseClientPackage() {
         const clientPath = this.config.getPath('client');
-        console.log(clientPath)
         const clientPkg = TESTS ? require(`${path.resolve(clientPath, '..')}/package.json`) : require(`${clientPath}/package.json`);
         const { version } = clientPkg;
         const main = TESTS ? 'betterdiscord.client.js' : clientPkg.main;
@@ -312,7 +311,6 @@ export class BetterDiscord {
 
     parseCorePackage() {
         const corePath = this.config.getPath('core');
-        console.log(corePath)
         const corePkg = TESTS ? require(`${path.resolve(corePath, '..')}/package.json`) : require(`${corePath}/package.json`);
         const { version } = corePkg;
         this.config.setCoreVersion(version);
@@ -320,7 +318,6 @@ export class BetterDiscord {
 
     parseEditorPackage() {
         const editorPath = this.config.getPath('editor');
-        console.log(editorPath)
         const editorPkg = TESTS ? require(`${path.resolve(editorPath, '../')}/package.json`) : require(`${editorPath}/package.json`);
         const { version } = editorPkg;
         this.config.setEditorVersion(version);
@@ -389,7 +386,7 @@ export class BetterDiscord {
             delete require.cache[electron_path].exports;
             require.cache[electron_path].exports = newElectron;
         } catch (error) {
-            console.log("Failed to patch BrowserWindow. BetterDiscord will not show up!", error);
+            console.log('Failed to patch BrowserWindow. BetterDiscord will not show up!', error);
         }
     }
 

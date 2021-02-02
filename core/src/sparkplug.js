@@ -32,12 +32,6 @@ import electron, { ipcRenderer } from 'electron';
         }
     }
 
-    console.log(electron)
-
-    // Object.defineProperty(window, "webpackJsonp", {
-    //     get() {return electron.webFrame.context.window.webpackJsonp}
-    // })
-
     process.on = old;
 
     ipcRenderer.on('--bd-inject-script', (event, {script, variable}) => {

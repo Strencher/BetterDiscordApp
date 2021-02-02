@@ -16,7 +16,6 @@ const vueLoader = {
 };
 
 const sass = require('sass');
-console.log(sass);
 
 const scssLoader = {
     test: /\.s[ac]ss$/i,
