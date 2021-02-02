@@ -1,5 +1,5 @@
 {
-    "mver": "2.0.0a",
+    "mver": "2.0.0-beta.6-revive",
     "files": [
         {
             "id": "stub",
@@ -12,18 +12,26 @@
         {
             "id": "core",
             "name": "core.tar.gz",
-            "version": "2.0.0b",
-            "size": 13287169,
-            "remote": "/releases/download/it2/core.tar.gz",
-            "hash": "2d3e48641fd38b2b8ba7ff4d607d7aab61daad08f2f48c49e4c1901686d50702"
+            "version": "2.0.0-beta.6",
+            "size": 11003530,
+            "remote": "/releases/download/2.0.0-beta.6-revive/core.tar.gz",
+            "hash": "713e7d5143aba53234649b32cce25d083781f8afa0840470ff960fab34aee4da"
         },
         {
             "id": "client",
             "name": "client.tar.gz",
-            "version": "2.0.0b",
-            "size": 498211,
-            "remote": "/releases/download/it2/client.tar.gz",
-            "hash": "2a6a33b1136a3e2e05289e8ce623fffc4e7a623fda55f0d0d4e34791b0d8dad7"
+            "version": "2.0.0-beta.6",
+            "size": 514372,
+            "remote": "/releases/download/2.0.0-beta.6-revive/client.tar.gz",
+            "hash": "7cfa6e3e22382c6679d423b24cf392ca1eae62bf0c964b9962475e5d870e0bc1"
+        },
+        {
+            "id": "editor",
+            "name": "editor.tar.gz",
+            "version": "0.4.0",
+            "size": 296827,
+            "remote": "/releases/download/2.0.0-beta.6-revive/editor.tar.gz",
+            "hash": "f3338e6980037d9a0ef90c5d6c5c28decd6483b2b08d436502285d710b58c272"
         }
     ]
 }
